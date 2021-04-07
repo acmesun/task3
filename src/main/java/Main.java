@@ -4,6 +4,7 @@ import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Random;
 import java.util.Scanner;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -15,20 +16,24 @@ public class Main {
 
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException {
         arguments = args;
-        printMenu();
-        int user = userMove();
-        int pc = pcMove();
-        byte[] key = generateKey();
-        System.out.println("HMAC: " + hex(generateDigest(arguments[pc].getBytes(UTF_8), key)));
-        System.out.println("PC move: " + arguments[pc]);
+        if (arguments.length % 2 == 0 && arguments.length < 3) {
+            System.out.println("Exception! there must be 3 or more arguments (odd number). Please, try again.");
+        } else {
+            printMenu();
+            int user = userMove();
+            int pc = pcMove();
+            byte[] key = generateKey();
+            System.out.println("HMAC: " + hex(generateDigest(arguments[pc].getBytes(UTF_8), key)));
+            System.out.println("PC move: " + arguments[pc]);
 
-        game(user, pc, arguments.length);
+            game(user, pc, arguments.length);
 
-        System.out.println("KEY: " + hex(key));
+            System.out.println("KEY: " + hex(key));
+        }
     }
 
     private static int pcMove() {
-        return (int) (Math.random() * (arguments.length) + 1);
+        return new Random().nextInt(arguments.length);
     }
 
     private static void game(int user, int pc, int length) {
@@ -52,9 +57,6 @@ public class Main {
     }
 
     private static void printMenu() {
-        if (arguments.length % 2 == 0 && arguments.length < 3) {
-            System.out.println("Exception! there must be 3 or more arguments and an odd number. Please, try again.");
-        }
         int i = 1;
         System.out.println("Available move: ");
         for (String word : arguments) {
