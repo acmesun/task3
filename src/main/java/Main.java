@@ -19,15 +19,13 @@ public class Main {
         if (arguments.length % 2 == 0 && arguments.length < 3) {
             System.out.println("Exception! there must be 3 or more arguments (odd number). Please, try again.");
         } else {
-            printMenu();
             int pc = pcMove();
             byte[] key = generateKey();
             System.out.println("HMAC: " + hex(generateDigest(arguments[pc].getBytes(UTF_8), key)));
-            System.out.println("PC move: " + arguments[pc]);
+            printMenu();
             int user = userMove();
-
+            System.out.println("PC move: " + arguments[pc]);
             game(user, pc, arguments.length);
-
             System.out.println("KEY: " + hex(key));
         }
     }
