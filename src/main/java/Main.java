@@ -32,7 +32,6 @@ public class Main {
         byte[] digest = sha256_HMAC.doFinal(pcMove.getBytes());
         BigInteger bigInteger = new BigInteger(1, digest);
         System.out.printf("%0" + (digest.length << 1) + "x%n", bigInteger);
-        //System.out.println(hex(digest));
 
         //game
         int range = (length - 1) / 2;
@@ -54,7 +53,6 @@ public class Main {
             }
         }
         System.out.printf("%0" + (key.length << 1) + "x%n", new BigInteger(1, key));
-        //System.out.println(hex(key));
     }
 
     private static void printMenu() {
@@ -85,16 +83,4 @@ public class Main {
         System.out.println("Your move: " + arguments[user - 1]);
         return user;
     }
-
-    /*private static String hex(byte[] bytes) {
-        StringBuilder result = new StringBuilder();
-        for (byte aByte : bytes) {
-            //result.append(String.format("%02x", aByte));
-            // upper case
-            result.append(String.format("%02X", aByte));
-        }
-        return result.toString();
-    }*/
-
-
 }
