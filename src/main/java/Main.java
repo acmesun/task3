@@ -6,36 +6,33 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Scanner;
 
-public class Main {
-    private static String[] arguments;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
-    public static String[] getArguments() {
-        return arguments;
-    }
+public class Main {
+    private static final String HMAC_ALG = "HmacSHA256";
+    private static final int KEY_SIZE = 16;
+    private static String[] arguments;
 
     public static void main(String[] args) throws NoSuchAlgorithmException, InvalidKeyException {
         arguments = args;
         printMenu();
-        //user move
         int user = userMove();
-        int length = arguments.length;
-        //pc move
-        int pc = (int) (Math.random() * (length) + 1);
-        String pcMove = arguments[pc];
-        //key
-        SecureRandom secureRandom = new SecureRandom();
-        byte[] key = new byte[16];
-        secureRandom.nextBytes(key);
-        Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKey = new SecretKeySpec(key, "HmacSHA256");
-        sha256_HMAC.init(secretKey);
-        byte[] digest = sha256_HMAC.doFinal(pcMove.getBytes());
-        BigInteger bigInteger = new BigInteger(1, digest);
-        System.out.printf("%0" + (digest.length << 1) + "x%n", bigInteger);
-
-        //game
-        int range = (length - 1) / 2;
+        int pc = pcMove();
+        byte[] key = generateKey();
+        System.out.println("HMAC: " + hex(generateDigest(arguments[pc].getBytes(UTF_8), key)));
         System.out.println("PC move: " + arguments[pc]);
+
+        game(user, pc, arguments.length);
+
+        System.out.println("KEY: " + hex(key));
+    }
+
+    private static int pcMove() {
+        return (int) (Math.random() * (arguments.length) + 1);
+    }
+
+    private static void game(int user, int pc, int length) {
+        int range = (length - 1) / 2;
         int window = pc - range < 0 ? arguments.length + (pc - range) : pc - range;
         if (pc == user) {
             System.out.println("Nobody wins!");
@@ -52,18 +49,16 @@ public class Main {
                 System.out.println("User wins!");
             }
         }
-        System.out.printf("%0" + (key.length << 1) + "x%n", new BigInteger(1, key));
     }
 
     private static void printMenu() {
-        String[] args = getArguments();
-        if (args.length % 2 == 0 && args.length < 3) {
+        if (arguments.length % 2 == 0 && arguments.length < 3) {
             System.out.println("Exception! there must be 3 or more arguments and an odd number. Please, try again.");
         }
         int i = 1;
         System.out.println("Available move: ");
-        for (String word : args) {
-            if (i < args.length + 1) {
+        for (String word : arguments) {
+            if (i < arguments.length + 1) {
                 System.out.println(i + ". " + word);
                 i++;
             }
@@ -78,9 +73,26 @@ public class Main {
         if (user > arguments.length || user == 0) {
             System.out.println("Wrong button. Choose again, please.");
             printMenu();
-            userMove();
+            return userMove();
         }
         System.out.println("Your move: " + arguments[user - 1]);
-        return user;
+        return user - 1;
+    }
+
+    private static String hex(byte[] bytes) {
+        return String.format("%0" + (bytes.length << 1) + "x%n", new BigInteger(1, bytes));
+    }
+
+    private static byte[] generateKey() {
+        byte[] key = new byte[KEY_SIZE];
+        new SecureRandom().nextBytes(key);
+        return key;
+    }
+
+    private static byte[] generateDigest(byte[] message, byte[] key) throws NoSuchAlgorithmException, InvalidKeyException {
+        Mac mac = Mac.getInstance(HMAC_ALG);
+        SecretKeySpec secretKey = new SecretKeySpec(key, HMAC_ALG);
+        mac.init(secretKey);
+        return mac.doFinal(message);
     }
 }
