@@ -20,11 +20,11 @@ public class Main {
             System.out.println("Exception! there must be 3 or more arguments (odd number). Please, try again.");
         } else {
             printMenu();
-            int user = userMove();
             int pc = pcMove();
             byte[] key = generateKey();
             System.out.println("HMAC: " + hex(generateDigest(arguments[pc].getBytes(UTF_8), key)));
             System.out.println("PC move: " + arguments[pc]);
+            int user = userMove();
 
             game(user, pc, arguments.length);
 
